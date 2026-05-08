@@ -235,6 +235,8 @@
     class(TAxionEffectiveFluid) :: this
     real(dl) :: TAxionEffectiveFluid_grho_de, apow
     real(dl), intent(IN) :: a
+    
+    real(dl) :: z, f_z
 
     if(a == 0.d0)then
         TAxionEffectiveFluid_grho_de = 0.d0
@@ -242,6 +244,16 @@
         apow = a**this%pow
         TAxionEffectiveFluid_grho_de = (this%omL*(apow+this%acpow)+this%om*(1+this%acpow))*a**4 &
             /((apow+this%acpow)*(this%omL+this%om))
+
+    z = 1.0_dl/a - 1.0_dl
+    f_z = 1.0_dl &
+        + 4e-5_dl * 0.5_dl * (1.0_dl - tanh((z - 3.0_dl)/0.25_dl)) &
+        + 2e-5_dl * 0.5_dl * (1.0_dl - tanh((z - 1.5_dl)/0.4_dl)) &    
+        + (6e-6_dl / (1.0_dl + 0.3_dl*z)) * sin(2.0_dl * z*z + 0.02_dl * z/(1.0_dl+z) + 0.01_dl*sin(z) ) * exp(-(z/2.3_dl)**2)
+        
+        
+    TAxionEffectiveFluid_grho_de = TAxionEffectiveFluid_grho_de * f_z
+
     endif
 
     end function TAxionEffectiveFluid_grho_de

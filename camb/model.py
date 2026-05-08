@@ -308,6 +308,7 @@ class CAMBparams(F2003Class):
         ("YHe", c_double, "Helium mass fraction"),
         ("num_nu_massless", c_double, "Effective number of massless neutrinos"),
         ("num_nu_massive", c_int, "Total physical (integer) number of massive neutrino species"),
+        ("fde_lambda0", c_double),
         ("nu_mass_eigenstates", c_int, "Number of non-degenerate mass eigenstates"),
         (
             "share_delta_neff",
