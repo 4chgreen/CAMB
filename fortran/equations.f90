@@ -8,16 +8,32 @@
     class(CAMBdata) :: this
     real(dl), intent(in) :: a
     real(dl) :: dtauda, grhoa2, grhov_t
+    real(dl) :: z, lambda_mem, lambda0, alpha
 
+    real(dl), parameter :: lambda_fde = 0.1_dl
+    real(dl) :: lambda_bg, lambda_growth
+    
     call this%CP%DarkEnergy%BackgroundDensityAndPressure(this%grhov, a, grhov_t)
 
-    !  8*pi*G*rho*a**4.
-    grhoa2 = this%grho_no_de(a) +  grhov_t * a**2
+    !------------------------------------------
+        alpha   = this%CP%fde_alpha
+
+        z = 1._dl/a - 1._dl
+    
+        lambda_bg     = 0._dl
+        lambda_growth = 0._dl     
+
+    !------------------------------------------
+       
+        grhoa2 = this%grho_no_de(a) + grhov_t * a**2
+        grhoa2 = grhoa2 * (1._dl + lambda_bg)**2
+
+
     if (grhoa2 <= 0) then
         call GlobalError('Universe stops expanding before today (recollapse not supported)', error_unsupported_params)
-        dtauda = 0
+        dtauda = 0._dl
     else
-        dtauda = sqrt(3 / grhoa2)
+        dtauda = sqrt(3._dl / grhoa2)
     end if
 
     end function dtauda
@@ -2155,10 +2171,15 @@
     real(dl) G11_t,G30_t, wnu_arr(max_nu)
 
     real(dl) dgq,grhob_t,grhor_t,grhoc_t,grhog_t,grhov_t,grhonu_t,sigma,polter
+    real(dl) :: lambda_growth, Sk, Aa, G_eff
+
+
     real(dl) w_dark_energy_t !equation of state of dark energy
     real(dl) gpres_noDE !Pressure with matter and radiation, no dark energy
     real(dl) qgdot,qrdot,pigdot,pirdot,vbdot,dgrho,adotoa
     real(dl) a,a2,z,clxc,clxb,vb,clxg,qg,pig,clxr,qr,pir
+    real(dl) lambda_mem
+    real(dl) z_fde
     real(dl) E2, dopacity
     integer l,i,ind, ind2, off_ix, ix
     real(dl) dgs,sigmadot,dz
@@ -2177,9 +2198,31 @@
     real(dl) ddopacity, visibility, dvisibility, ddvisibility, exptau, lenswindow
     real(dl) ISW, quadrupole_source, doppler, monopole_source, tau0, ang_dist
     real(dl) dgrho_de, dgq_de, cs2_de
+    
+    real(dl) :: kl, mu_isw, epsilon
+    real(dl) :: fde_k
+   
+    
+    ! =========================
+    ! FDE / modified gravity param
+    ! =========================
+    real(dl) :: mu_k, source_factor = 1.d0
+    real(dl), parameter :: A_mu = 0.1d0
+    real(dl), parameter :: lambda_mu = 0.1d0
+    real(dl), parameter :: ks = 0.05_dl
+    real(dl), parameter :: p  = 2.0_dl
 
     k=EV%k_buf
     k2=EV%k2_buf
+
+    epsilon = 0.0_dl
+    lambda_growth = State%CP%lambda_growth
+   
+    
+   
+
+    ! kl = k * lambda_growth  
+    ! G_eff = 1.d0 / (1.d0 + kl*kl)   
 
     !  Get background scale factor, sound speed and ionisation fraction.
     if (EV%TightCoupling) then
@@ -2236,7 +2279,10 @@
         cothxor=1._dl/State%tanfunc(tau/State%curvature_radius)/State%curvature_radius
     end if
 
-    dgrho = dgrho_matter
+
+    !-----??????
+   ! dgrho = (1.d0 + mu_k) * dgrho
+    !-----
 
     if (EV%no_nu_multpoles) then
         !RSA approximation of arXiv:1104.2933, dropping opactity terms in the velocity
@@ -2289,6 +2335,69 @@
         dgq = dgq + dgq_de
     end if
 
+  !---------on-(??_k)--------- ????????????FDE?????????
+
+  ! if (A_mu /= 0.d0) then
+  !     source_factor = 1.d0 + mu_k
+
+  ! if (k > 0.1d0 .and. k < 0.1001d0) then
+  !     write(*,*) 'DEBUG source_factor =', source_factor
+  !     write(*,*) 'DEBUG mu_k =', mu_k
+  ! endif    
+
+        source_factor = 1.d0
+        dgrho_matter = grhob_t*clxb + grhoc_t*clxc
+        dgrho = dgrho_matter * source_factor + grhog_t*clxg + grhor_t*clxr + dgrho_de
+      ! dgrho = dgrho + (source_factor - 1.0_dl) * dgrho_matter * 0.0_dl
+
+  ! end if
+  ! ----------------
+
+    !dgrho = dgrho * G_eff
+
+ 
+    !G_eff = 1._dl + lambda_growth * Sk * Aa
+        
+    !dgrho = dgrho * G_eff
+    !dgq   = dgq   * G_eff
+    ! ===================================
+        
+    !  Get sigma (shear) and z from the constraints
+    ! have to get z from eta for numerical stability
+    z=(0.5_dl*dgrho/k + etak)/adotoa
+    if (State%flat) then
+        !eta*k equation
+        sigma=(z+1.5_dl*dgq/k2)
+        ayprime(ix_etak)=0.5_dl*dgq
+    else
+        sigma=(z+1.5_dl*dgq/k2)/EV%Kf(1)
+        ayprime(ix_etak)=0.5_dl*dgq + State%curv*z
+    end if  
+        
+    if (.not. EV%is_cosmological_constant) &
+        call State%CP%DarkEnergy%PerturbationEvolve(ayprime, w_dark_energy_t, &
+        EV%w_ix, a, adotoa, k, z, ay)
+        
+    !  CDM equation of motion
+              
+    ! ===== FDE growth modification =====
+    ! z_fde = 1._dl/a - 1._dl
+    ! lambda_mem = this%CP%fde_lambda0 * (1._dl + z)**this%CP%fde_alpha
+    ! if (lambda_mem < 1e-12_dl) lambda_mem = 1e-12_dl
+        
+    ! clxcdot = clxcdot * (1._dl + 0.3_dl * lambda_mem)  
+    ! ===================================
+    
+    ayprime(ix_clxc)=clxcdot
+ ! ==============lambda_poisson=====================
+    
+
+    !G_eff = 1._dl + lambda_growth * Sk * Aa
+
+    !dgrho = dgrho * G_eff
+    !dgq   = dgq   * G_eff
+    ! ===================================
+
     !  Get sigma (shear) and z from the constraints
     ! have to get z from eta for numerical stability
     z=(0.5_dl*dgrho/k + etak)/adotoa
@@ -2305,8 +2414,32 @@
         call State%CP%DarkEnergy%PerturbationEvolve(ayprime, w_dark_energy_t, &
         EV%w_ix, a, adotoa, k, z, ay)
 
-    !  CDM equation of motion
-    clxcdot=-k*z
+    !  CDM equation of motion----------------
+       
+    Aa = a
+
+ ! ---off---
+  ! fde_k = 0.d0
+  ! clxcdot = -k*z
+
+ ! ---on---
+    fde_k = lambda_growth * (k/ks)**p / (1._dl + (k/ks)**p)
+    clxcdot = -(1._dl + fde_k) * k * z
+
+ ! if (k > 0.43396d0 .and. k < 0.43397d0) then 
+  !  write(*,*) 'DEBUG HERE ENTERED'
+   ! write(*,*) 'k =', k
+   ! write(*,*) 'fde_k =', fde_k
+ ! endif
+
+    ! ===== FDE growth modification =====
+    ! z_fde = 1._dl/a - 1._dl
+    ! lambda_mem = this%CP%fde_lambda0 * (1._dl + z)**this%CP%fde_alpha
+    ! if (lambda_mem < 1e-12_dl) lambda_mem = 1e-12_dl
+    
+    ! clxcdot = clxcdot * (1._dl + 0.3_dl * lambda_mem)
+    ! ===================================
+
     ayprime(ix_clxc)=clxcdot
 
     !  Baryon equation of motion.
@@ -2690,7 +2823,27 @@
             State%CP%DarkEnergy%diff_rhopi_Add_Term(dgrho_de, dgq_de, grho, &
             gpres, w_dark_energy_t, State%grhok, adotoa, &
             EV%kf(1), k, grhov_t, z, k2, ayprime, ay, EV%w_ix)
-        phi = -((dgrho +3*dgq*adotoa/k)/EV%Kf(1) + dgpi)/(2*k2)
+
+
+        ! --- FDE: mu(k) ---
+
+     !---off---
+        mu_k = 0.d0
+     ! ---on---
+      ! mu_k = A_mu / (1.d0 + (k * lambda_mu)**2)
+      ! source_factor = 1.d0 + mu_k
+
+    ! ===== DEBUG =====
+    if (k > 0.1d0 .and. k < 0.1001d0) then
+      write(*,*) 'DEBUG mu_k =', mu_k
+    endif
+    ! ================
+
+
+        ! --- modified Poisson (density only) ---
+        phi = -(((1.d0 + mu_k)*dgrho + 3*dgq*adotoa/k)/EV%Kf(1) + dgpi)/(2*k2)        
+
+
 
         if (associated(EV%OutputTransfer)) then
             EV%OutputTransfer(Transfer_kh) = k/(State%CP%h0/100._dl)
@@ -2752,7 +2905,14 @@
             !Temperature source terms, after integrating by parts in conformal time
 
             !2phi' term (\phi' + \psi' in Newtonian gauge), phi is the Weyl potential
-            ISW = 2*phidot*exptau
+
+
+            
+            mu_isw = kl*kl / (1.d0 + kl*kl)
+            ISW = 2.d0 * phidot * exptau * (1.d0 + epsilon * mu_isw)
+            
+           
+
             monopole_source =  (-etak/(k*EV%Kf(1)) + 2*phi + clxg/4)*visibility
             doppler = ((sigma + vb)*dvisibility + (sigmadot + vbdot)*visibility)/k
             quadrupole_source = (5.0d0/8.0d0)*(3*polter*ddvisibility + 6*polterdot*dvisibility &
@@ -2829,8 +2989,7 @@
     real(dl) pir,adotoa
     real(dl) w_dark_energy_t
 
-    k2=EV%k2_buf
-    k=EV%k_buf
+    
 
     !E and B start at l=2. Set up pointers accordingly to fill in y arrays
     E => yv(EV%lmaxv+3:)

@@ -418,6 +418,9 @@
 
     P%h0 = Ini%Read_Double('hubble')
 
+    P%fde_lambda0 = Ini%Read_Double('fde_lambda0', 0.0_dl)
+    P%lambda_growth = Ini%Read_Double('lambda_growth', 0.0_dl)
+    P%fde_alpha   = Ini%Read_Double('fde_alpha',   0.0_dl)
     if (Ini%Read_Logical('use_physical', .true.)) then
         P%ombh2 = Ini%Read_Double('ombh2')
         P%omch2 = Ini%Read_Double('omch2')
