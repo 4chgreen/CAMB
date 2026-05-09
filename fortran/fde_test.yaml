@@ -1,0 +1,57 @@
+likelihood:
+  planck_2018_highl_plik.TTTEEE:
+  planck_2018_lowl.TT:
+  planck_2018_lowl.EE:
+
+theory:
+  camb:
+    path: /Users/4chmacmini2018/MyDrive/cobaya_fde_project/camb_main
+    extra_args:
+      lens_potential_accuracy: 1
+params:
+  As:
+    prior: {min: 1.0e-9, max: 4.0e-9}
+    ref: 2.1e-9
+    proposal: 0.01e-9
+    latex: A_s
+  ns:
+    prior: {min: 0.8, max: 1.2}
+    ref: 0.965
+    proposal: 0.001
+    latex: n_s
+  H0:
+    prior: {min: 60, max: 80}
+    ref: 67.36
+    proposal: 0.01
+    latex: H_0
+  ombh2:
+    prior: {min: 0.018, max: 0.028}
+    ref: 0.02237
+    proposal: 0.0001
+    latex: \Omega_b h^2
+  omch2:
+    prior: {min: 0.09, max: 0.15}
+    ref: 0.1200
+    proposal: 0.001
+    latex: \Omega_c h^2
+  tau:
+    prior: {min: 0.01, max: 0.8}
+    ref: 0.0544
+    proposal: 0.001
+    latex: \tau
+  lambda_growth:
+    value: -0.05
+
+sampler:
+  evaluate:
+    override:
+      As: 2.1e-9
+      ns: 0.965
+      H0: 67.36
+      ombh2: 0.02237
+      omch2: 0.1200
+      tau: 0.0544
+
+output: fde_test
+packages_path: /Users/4chmacmini2018/cobaya_packages
+

@@ -1,0 +1,83 @@
+import numpy as np
+
+# =========================
+# データ読み込み
+# =========================
+lcdm = np.loadtxt("lcdm_matterpower.dat")
+fde  = np.loadtxt("fde_matterpower.dat")
+
+k = lcdm[:,0]
+P_lcdm = lcdm[:,1]
+P_fde  = fde[:,1]
+
+# =========================
+# 比率・差分
+# =========================
+ratio = P_fde / P_lcdm
+dP    = P_fde - P_lcdm
+
+# =========================
+# σ₈型構造（k^3 weighting）
+# =========================
+Pk3_lcdm = k**3 * P_lcdm
+Pk3_fde  = k**3 * P_fde
+
+sigma_lcdm = np.trapz(Pk3_lcdm, k)
+sigma_fde  = np.trapz(Pk3_fde, k)
+
+print("\n=== σ-like structure (k^3P) ===")
+print("LCDM:", sigma_lcdm)
+print("FDE :", sigma_fde)
+print("ratio:", sigma_fde / sigma_lcdm)
+
+# =========================
+# window付きσ（σ₈近似）
+# =========================
+W2 = np.exp(-k**2 * 8.0**2)  # σ8 window近似
+
+sig8_lcdm = np.trapz(Pk3_lcdm * W2, k)
+sig8_fde  = np.trapz(Pk3_fde  * W2, k)
+
+print("\n=== σ8 (windowed) ===")
+print("LCDM:", sig8_lcdm)
+print("FDE :", sig8_fde)
+print("ratio:", sig8_fde / sig8_lcdm)
+
+# =========================
+# k領域分解（核心）
+# =========================
+low  = (k < 0.05)
+mid  = (k >= 0.05) & (k < 0.2)
+high = (k >= 0.2)
+
+def contrib(mask):
+    return np.trapz(k[mask]**3 * P_fde[mask], k[mask])
+
+print("\n=== k-region contributions (FDE) ===")
+print("LOW :", contrib(low))
+print("MID :", contrib(mid))
+print("HIGH:", contrib(high))
+
+# =========================
+# ratio構造の確認
+# =========================
+print("\n=== ratio structure ===")
+print("mean low :", np.mean(ratio[low]))
+print("mean mid :", np.mean(ratio[mid]))
+print("mean high:", np.mean(ratio[high]))
+
+# =========================
+# HIGH-k支配診断
+# =========================
+total = contrib(low) + contrib(mid) + contrib(high)
+
+print("\n=== dominance ===")
+print("LOW share :", contrib(low)/total)
+print("MID share :", contrib(mid)/total)
+print("HIGH share:", contrib(high)/total)
+
+# =========================
+# 物理的警告フラグ
+# =========================
+if contrib(high)/total > 0.6:
+    print("\n⚠ HIGH-k DOMINANT: check Poisson / IC artifact risk")
