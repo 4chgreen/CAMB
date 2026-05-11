@@ -1,0 +1,24 @@
+FDE Phase A fixed-nuisance comparison
+lens_potential_accuracy = 1
+
+lambda = 0.0
+chi2_total = 3524.91
+TTTEEE = 3096.53
+lensing = 8.83
+
+lambda = -0.006
+chi2_total = 3523.62
+Δχ² = -1.29
+TTTEEE = 3095.36
+lensing = 8.72
+
+lambda = -0.05
+chi2_total = 3569.08
+Δχ² = +44.17
+TTTEEE = 3141.30
+lensing = 8.35
+
+Conclusion:
+Small damping allowed.
+Large damping breaks TTTEEE.
+Scale-dependent Phase B required.

@@ -8,7 +8,7 @@ theory:
   camb:
     path: /Users/4chmacmini2018/MyDrive/cobaya_fde_project/camb_main
     extra_args:
-      lens_potential_accuracy: 0
+      lens_potential_accuracy: 1
 
 params:
   As:
@@ -56,7 +56,10 @@ sampler:
       ombh2: 0.02237
       omch2: 0.1200
       tau: 0.0544
-      lambda_growth: -0.05
+      lambda_growth: 0.00
+      A_planck: 1.0
+      calib_100T: 1.0
+      calib_217T: 1.0
 
 output: fde_lens_test
 packages_path: /Users/4chmacmini2018/cobaya_packages
