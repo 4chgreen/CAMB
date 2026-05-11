@@ -17,7 +17,7 @@ params:
   ombh2: 0.02237
   omch2: 0.1200
   tau: 0.0544
-  lambda_growth: -0.006
+  lambda_growth: -0.06
   A_planck: 1.0
   calib_100T: 1.0
   calib_217T: 1.0
