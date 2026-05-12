@@ -2246,7 +2246,7 @@
     block
         real(dl) :: x_kl_b1, mu_b1
         real(dl), parameter :: A_MU_B1    = 0.07_dl
-        real(dl), parameter :: LAMBDA0_B1 = 5.0_dl
+        real(dl), parameter :: LAMBDA0_B1 = 0.05_dl
 
         x_kl_b1 = k * LAMBDA0_B1
 
