@@ -2242,6 +2242,24 @@
 
     dgrho = dgrho_matter
 
+! === FDE Phase B Step B1: minimal Poisson correction ===
+    block
+        real(dl) :: x_kl_b1, mu_b1
+        real(dl), parameter :: A_MU_B1    = 0.07_dl
+        real(dl), parameter :: LAMBDA0_B1 = 5.0_dl
+
+        x_kl_b1 = k * LAMBDA0_B1
+
+        ! Weak gravity suppression at high-k
+        mu_b1 = 1.0_dl - A_MU_B1 * x_kl_b1**2 / &
+                 (1.0_dl + x_kl_b1**2)
+
+        ! Apply only to CDM contribution
+        dgrho = dgrho + grhoc_t * clxc * (mu_b1 - 1.0_dl)
+
+    end block
+! ========================================================
+
     if (EV%no_nu_multpoles) then
         !RSA approximation of arXiv:1104.2933, dropping opactity terms in the velocity
         !Approximate total density variables with just matter terms
