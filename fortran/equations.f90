@@ -2242,20 +2242,21 @@
 
     dgrho = dgrho_matter
 
-! === FDE Phase B: ハイブリッドα<0形 ===
+! === FDE Phase B :2+n導入形 =========
     block
-        real(dl) :: x_kl_b1, mu_b1, lambda_eff, z_current
+        real(dl) :: x_kl_b1, mu_b1, lambda_eff, Sk
         real(dl), parameter :: A_MU_B1    = 1.0_dl
         real(dl), parameter :: LAMBDA0_B1 = 0.20_dl
-        real(dl), parameter :: ALPHA_B1   = 0.0_dl  ! ← 新規追加
+        real(dl), parameter :: KC_B       = 0.20_dl
+        real(dl), parameter :: N_B        = 1.5_dl
+
    
-        ! 新規: α<0による赤方偏移依存
-        z_current = 1.0_dl/a - 1.0_dl
-        lambda_eff = LAMBDA0_B1 * (1.0_dl + z_current)**ALPHA_B1
-    
+        lambda_eff = LAMBDA0_B1
         x_kl_b1 = k * lambda_eff
 
-        mu_b1 = 1.0_dl - A_MU_B1 * x_kl_b1**2 / &
+        Sk = (k/KC_B)**N_B / (1.0_dl + (k/KC_B)**N_B)
+       
+        mu_b1 = 1.0_dl - A_MU_B1 * Sk * x_kl_b1**2 / &
                  (1.0_dl + x_kl_b1**2)
 ! ===============================
 
