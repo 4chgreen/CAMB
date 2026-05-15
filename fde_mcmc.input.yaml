@@ -7,7 +7,6 @@ likelihood:
   planck_2018_highl_plik.TTTEEE: null
   planck_2018_lowl.TT: null
   planck_2018_lowl.EE: null
-  planck_2018_lensing.clik: null
 params:
   As:
     prior:
@@ -53,23 +52,15 @@ params:
     latex: \tau
   lambda_growth:
     prior:
-      min: -0.15
+      min: -0.3
       max: 0.0
-    ref: -0.006
-    proposal: 0.002
+    ref: -0.05
+    proposal: 0.005
     latex: \lambda_{\rm growth}
 sampler:
-  evaluate:
-    override:
-      As: 2.1e-09
-      ns: 0.965
-      H0: 67.36
-      ombh2: 0.02237
-      omch2: 0.12
-      tau: 0.0544
-      lambda_growth: 0.0
-      A_planck: 1.0
-      calib_100T: 1.0
-      calib_217T: 1.0
-output: fde_lens_test
+  mcmc:
+    max_tries: 1000
+    Rminus1_stop: 0.05
+    Rminus1_cl_stop: 0.2
+output: fde_mcmc
 packages_path: /Users/4chmacmini2018/cobaya_packages

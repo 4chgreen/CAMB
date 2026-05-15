@@ -1,0 +1,27 @@
+ Warning: Integrate_Romberg failed to converge; 
+ integral, error, tol:   14211.023892423011        2.9105975096754833E-007   1.0000000000000001E-007
+Reion redshift       =  10.795
+Om_b h^2             =  0.022600
+Om_c h^2             =  0.112000
+Om_nu h^2            =  0.000640
+Om_darkenergy        =  0.723926
+Om_K                 =  0.000000
+Om_m (inc Om_u)      =  0.276000
+100 theta (CosmoMC)  =  1.037239
+N_eff (total)        =  3.046000
+ 1 nu, g= 1.0153 m_nu*c^2/k_B/T_nu0=    353.67 (m_nu=  0.060 eV)
+Reion opt depth      =  0.0900
+Age of universe/GYr  =  13.637
+zstar                =  1089.09
+r_s(zstar)/Mpc       =  144.50
+100*theta            =  1.037332
+DA(zstar)/Gpc        =  13.93002
+zdrag                =  1060.01
+r_s(zdrag)/Mpc       =  147.10
+k_D(zstar) Mpc       =  0.1406
+100*theta_D          =  0.160440
+z_EQ (if v_nu=1)     =  3216.25
+k_EQ Mpc (if v_nu=1) =  0.009942
+100*theta_EQ         =  0.845611
+100*theta_rs_EQ      =  0.465942
+tau_recomb/Mpc       =  281.30  tau_now/Mpc =  14211.0
