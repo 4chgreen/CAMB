@@ -2242,27 +2242,46 @@
 
     dgrho = dgrho_matter
 
-! === FDE Phase B :2+n導入形 =========
+
+! === Phase C1: 時間依存λ(z) =============================
     block
-        real(dl) :: x_kl_b1, mu_b1, lambda_eff, Sk
-        real(dl), parameter :: A_MU_B1    = 1.0_dl
-        real(dl), parameter :: LAMBDA0_B1 = 0.20_dl
-        real(dl), parameter :: KC_B       = 0.20_dl
-        real(dl), parameter :: N_B        = 1.5_dl
+        real(dl) :: x_kl_b1, mu_b1, lambda_eff
+        real(dl), parameter :: KC_B = 0.10_dl
 
-   
-        lambda_eff = LAMBDA0_B1
-        x_kl_b1 = k * lambda_eff
-
-        Sk = (k/KC_B)**N_B / (1.0_dl + (k/KC_B)**N_B)
-       
-        mu_b1 = 1.0_dl - A_MU_B1 * Sk * x_kl_b1**2 / &
-                 (1.0_dl + x_kl_b1**2)
-! ===============================
+    ! === Phase C1: 時間依存λ(z) = lambda_growth × a^fde_alpha ===
+        lambda_eff = State%CP%lambda_growth * (a ** State%CP%fde_alpha)
+           
+        x_kl_b1 = k / KC_B
+        mu_b1 = 1.0_dl + lambda_eff * (1.0_dl - exp(-x_kl_b1 * x_kl_b1))
 
         dgrho = dgrho + grhoc_t * clxc * (mu_b1 - 1.0_dl)
 
     end block
+! ========================================================
+! === FDE Phase B(Frozen 2026-05-16)  =========
+!    block
+!        real(dl) :: x_kl_b1, mu_b1, lambda_eff, Sk
+!       real(dl), parameter :: A_MU_B1    = 1.0_dl
+!       real(dl), parameter :: LAMBDA0_B1 = 0.20_dl
+!       real(dl), parameter :: KC_B       = 0.10_dl
+!       real(dl), parameter :: N_B        = 1.5_dl
+!
+!       lambda_eff = LAMBDA0_B1
+!
+! ========Phase B step B4 ==================
+!
+!     ! x_kl_b1 = k * lambda_eff
+!        x_kl_b1 = k / KC_B
+!
+!     ! Sk = (k/KC_B)**N_B / (1.0_dl + (k/KC_B)**N_B)
+!       
+!       mu_b1 = 1.0_dl + lambda_growth * (1.0_dl - exp(-x_kl_b1*x_kl_b1))  
+!
+!     ! ===============================
+!
+!       dgrho = dgrho + grhoc_t * clxc * (mu_b1 - 1.0_dl)
+!
+!   end block
 ! ========================================================
 
     if (EV%no_nu_multpoles) then
