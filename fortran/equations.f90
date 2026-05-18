@@ -2244,23 +2244,26 @@
 
 
 ! === Phase C1: 時間依存λ(z) =============================
-    block
-        real(dl) :: x_kl_b1, mu_b1, lambda_eff
-        real(dl), parameter :: KC_B = 0.10_dl
+!  block
+!       real(dl) :: lambda_eff, fde_c1
+!       real(dl), parameter :: ks = 0.05_dl
+!       real(dl), parameter :: p  = 1.5_dl
 
-    ! === Phase C1: 時間依存λ(z) = lambda_growth × a^fde_alpha ===
-        lambda_eff = State%CP%lambda_growth * (a ** State%CP%fde_alpha)
-           
-        x_kl_b1 = k / KC_B
-        mu_b1 = 1.0_dl + lambda_eff * (1.0_dl - exp(-x_kl_b1 * x_kl_b1))
+    ! λ(z) = lambda_growth × a^fde_alpha
+!       lambda_eff = State%CP%lambda_growth * (a ** State%CP%fde_alpha)
 
-        dgrho = dgrho + grhoc_t * clxc * (mu_b1 - 1.0_dl)
+!       fde_c1 = lambda_eff * (k/ks)**p / (1.0_dl + (k/ks)**p)
 
-    end block
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+
+!   end block
+! ========================================================
+
+
 ! ========================================================
 ! === FDE Phase B(Frozen 2026-05-16)  =========
 !    block
-!        real(dl) :: x_kl_b1, mu_b1, lambda_eff, Sk
+!       real(dl) :: x_kl_b1, mu_b1, lambda_eff, Sk
 !       real(dl), parameter :: A_MU_B1    = 1.0_dl
 !       real(dl), parameter :: LAMBDA0_B1 = 0.20_dl
 !       real(dl), parameter :: KC_B       = 0.10_dl
@@ -2351,12 +2354,20 @@
         call State%CP%DarkEnergy%PerturbationEvolve(ayprime, w_dark_energy_t, &
         EV%w_ix, a, adotoa, k, z, ay)
 
-    !  CDM equation of motion
-
     clxcdot=-k*z
-        lambda_growth = State%CP%lambda_growth
-        fde_k = lambda_growth * (k/ks)**p / (1._dl + (k/ks)**p)
-        clxcdot = clxcdot * (1._dl + fde_k)
+
+    ! === Phase C1: 時間依存λ(z) ===
+    block
+        real(dl) :: lambda_eff, fde_c1
+        real(dl), parameter :: ks_c1 = 0.05_dl
+        real(dl), parameter :: p_c1  = 1.5_dl
+
+        lambda_eff = State%CP%lambda_growth * (a ** State%CP%fde_alpha)
+        fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / (1.0_dl + (k/ks_c1)**p_c1)
+        clxcdot = clxcdot * (1.0_dl + fde_c1)
+    end block
+    ! ================================
+
     ayprime(ix_clxc)=clxcdot
 
     !  Baryon equation of motion.

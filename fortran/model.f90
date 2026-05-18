@@ -142,8 +142,8 @@
         real(dl)  :: Yhe = 0.24_dl
         real(dl)  :: Num_Nu_massless = default_nnu
         integer   :: Num_Nu_massive = 0 !sum of Nu_mass_numbers below
-        real(dl)  :: fde_lambda0
-        real(dl)  :: lambda_growth
+        real(dl)  :: fde_lambda0 = 0._dl
+        real(dl)  :: lambda_growth= 0._dl
         real(dl)  :: fde_alpha = 0._dl
         integer   :: Nu_mass_eigenstates = 0  !1 for degenerate masses
         logical   :: share_delta_neff = .false. !take fractional part to heat all eigenstates the same
