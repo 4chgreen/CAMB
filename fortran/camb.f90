@@ -421,6 +421,9 @@
     P%fde_lambda0 = Ini%Read_Double('fde_lambda0', 0.0_dl)
     P%lambda_growth = Ini%Read_Double('lambda_growth', 0.0_dl)
     P%fde_alpha   = Ini%Read_Double('fde_alpha',   0.0_dl)
+    P%fde_eps_mu = Ini%Read_Double('fde_eps_mu', 0.0_dl)
+    P%fde_lambda_mem = Ini%Read_Double('fde_lambda_mem', 0.0_dl)
+
     if (Ini%Read_Logical('use_physical', .true.)) then
         P%ombh2 = Ini%Read_Double('ombh2')
         P%omch2 = Ini%Read_Double('omch2')

@@ -2242,6 +2242,18 @@
 
     dgrho = dgrho_matter
 
+! === FDE Phase C2-test : weak Poisson response 超弱μテスト ===
+    block
+        real(dl) :: mu_fde, x_fde
+        
+        x_fde = k * State%CP%fde_lambda_mem
+
+        mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
+                 (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+
+        dgrho = dgrho * mu_fde
+    end block
+! ================================================
 
 ! === Phase C1: 時間依存λ(z) =============================
 !  block
@@ -2356,7 +2368,22 @@
 
     clxcdot=-k*z
 
-    ! === Phase C1: 時間依存λ(z) ===
+! === Phase C2 : localized suppression 局所抑制 ===
+!    block
+!       real(dl) :: lambda_eff, fde_c2
+!       real(dl), parameter :: kc_c2 = 0.02_dl
+
+!       lambda_eff = State%CP%lambda_growth * &
+!                    (a ** State%CP%fde_alpha)
+
+!       fde_c2 = lambda_eff * &
+!                (1.0_dl - exp(-(k/kc_c2)**2))
+
+!       clxcdot = clxcdot * (1.0_dl + fde_c2)
+!   end block
+! ================================
+
+!   ! === Phase C1: 時間依存λ(z) ===
     block
         real(dl) :: lambda_eff, fde_c1
         real(dl), parameter :: ks_c1 = 0.05_dl
@@ -2366,7 +2393,7 @@
         fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / (1.0_dl + (k/ks_c1)**p_c1)
         clxcdot = clxcdot * (1.0_dl + fde_c1)
     end block
-    ! ================================
+!   ! ================================
 
     ayprime(ix_clxc)=clxcdot
 
