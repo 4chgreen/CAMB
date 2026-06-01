@@ -46,7 +46,7 @@ params:
     value: 0.01
   fde_kd: 1000000.0
   fde_alpha: 0.025
-  fde_ac: 2.0
+  fde_ac: 0.9
   fde_da: 0.05
   DES_DzS1:
     value: 0.00258585

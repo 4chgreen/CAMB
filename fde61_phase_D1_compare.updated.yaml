@@ -296,7 +296,7 @@ params:
   fde_alpha:
     value: 0.025
   fde_ac:
-    value: 2.0
+    value: 0.9
   fde_da:
     value: 0.05
   DES_DzS1:

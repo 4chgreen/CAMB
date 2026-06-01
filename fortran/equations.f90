@@ -2497,15 +2497,32 @@
 ! ================================
 
 !  ! === Phase C1: canonical  時間依存λ(z) ===
+!   block
+!       real(dl) :: lambda_eff, fde_c1
+!       real(dl), parameter :: ks_c1 = 0.05_dl
+!       real(dl), parameter :: p_c1  = 1.5_dl
+
+!       lambda_eff = State%CP%lambda_growth
+!       lambda_eff = State%CP%lambda_growth * (a ** State%CP%fde_alpha)
+
+!       fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / (1.0_dl + (k/ks_c1)**p_c1)
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+!   end block
+! ============================================================
+ ! === FDE-61 Phase F（temporal saturation） ===
     block
         real(dl) :: lambda_eff, fde_c1
         real(dl), parameter :: ks_c1 = 0.05_dl
         real(dl), parameter :: p_c1  = 1.5_dl
+        real(dl), parameter :: n_sat = 4.0_dl
 
-        lambda_eff = State%CP%lambda_growth
-        lambda_eff = State%CP%lambda_growth * (a ** State%CP%fde_alpha)
+        lambda_eff = State%CP%lambda_growth * &
+            (a ** State%CP%fde_alpha) / &
+            (1.0_dl + (a/State%CP%fde_ac)**n_sat)
 
-        fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / (1.0_dl + (k/ks_c1)**p_c1)
+        fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / &
+                 (1.0_dl + (k/ks_c1)**p_c1)
+
         clxcdot = clxcdot * (1.0_dl + fde_c1)
     end block
 ! ============================================================
