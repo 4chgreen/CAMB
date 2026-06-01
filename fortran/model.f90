@@ -145,8 +145,11 @@
         real(dl)  :: fde_lambda0 = 0.0_dl
         real(dl)  :: lambda_growth= 0.0_dl
         real(dl)  :: fde_alpha = 0.0_dl
-        real(dl) :: fde_eps_mu = 0.0_dl
-        real(dl) :: fde_lambda_mem = 0.0_dl
+        real(dl)  :: fde_eps_mu = 0.0_dl
+        real(dl)  :: fde_lambda_mem = 0.0_dl
+        real(dl)  :: fde_kd = 0.12_dl
+        real(dl)  :: fde_ac = 0.7_dl
+        real(dl)  :: fde_da = 0.2_dl
         integer   :: Nu_mass_eigenstates = 0  !1 for degenerate masses
         logical   :: share_delta_neff = .false. !take fractional part to heat all eigenstates the same
         real(dl)  :: Nu_mass_degeneracies(max_nu)

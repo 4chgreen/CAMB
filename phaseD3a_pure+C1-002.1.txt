@@ -1,0 +1,2 @@
+#        weight    minuslogpost      fde_eps_mu  fde_lambda_mem       chi2__CMB   minuslogprior minuslogprior__0 minuslogprior__SZ            chi2 chi2__planck_2018_highl_plik.TTTEEE chi2__planck_2018_lowl.TT chi2__planck_2018_lowl.EE chi2__planck_2018_lensing.clik
+              1        1755.276          0.0575            4.89       3513.9485      -1.6982617       -3.7297014         2.0314397       3513.9485                           3085.6291                 23.433428                 396.10607                      8.7799128

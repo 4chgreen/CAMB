@@ -311,6 +311,11 @@ class CAMBparams(F2003Class):
         ("fde_lambda0", c_double),
         ("lambda_growth", c_double),
         ("fde_alpha", c_double),
+        ("fde_eps_mu", c_double),
+        ("fde_lambda_mem", c_double),
+        ("fde_kd", c_double),
+        ("fde_ac", c_double),
+        ("fde_da", c_double),
         ("nu_mass_eigenstates", c_int, "Number of non-degenerate mass eigenstates"),
         (
             "share_delta_neff",

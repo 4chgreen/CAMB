@@ -2242,10 +2242,77 @@
 
     dgrho = dgrho_matter
 
-! === FDE Phase C2-test : weak Poisson response 超弱μテスト ===
+! ======= FDE Phase E3 : memory-length maturation ==========
+!   block
+!       real(dl) :: mu_fde, x_fde, lambda_mem_eff
+
+!       lambda_mem_eff = State%CP%fde_lambda_mem * &
+!           (1.0_dl + State%CP%fde_da * &
+!           (1.0_dl - exp(-a/State%CP%fde_ac)))
+
+!       x_fde = k * lambda_mem_eff
+
+!       mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
+!           (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+
+!       dgrho = dgrho * mu_fde
+!   end block
+
+! ======= FDE Phase E1 : canonical kernel ==========
+!   block
+!       real(dl) :: mu_fde, x_fde, eps_eff
+
+!       x_fde = k * State%CP%fde_lambda_mem
+! ===μ-memory saturation Test===
+!       eps_eff = State%CP%fde_eps_mu * &
+!           (1.0_dl + State%CP%fde_da * &
+!           (1.0_dl - exp(-a/State%CP%fde_ac)))
+
+!       mu_fde = 1.0_dl - eps_eff * &
+!           (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+! === canonical =================
+!       mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
+!           (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+
+!       dgrho = dgrho * mu_fde
+!   end block
+! ==================================================
+! === FDE Phase D4 : rev2 high-k cutoff ==========
+!   block
+!       real(dl) :: mu_fde, x_fde, highk_cutoff
+
+!       x_fde = k * State%CP%fde_lambda_mem
+
+!       highk_cutoff = 1.0_dl / &
+!           (1.0_dl + (k/State%CP%fde_kd)**2)
+
+!       mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
+!           (x_fde*x_fde)/(1.0_dl + x_fde*x_fde) * highk_cutoff
+
+!       dgrho = dgrho * mu_fde
+!   end block
+
+! === FDE Phase D3a : monotonic high-k cutoff ==========
+!   block
+!       real(dl) :: mu_fde, x_fde, kd_fde, highk_cutoff
+
+!       kd_fde = State%CP%fde_kd
+
+!       x_fde = k * State%CP%fde_lambda_mem
+
+!       highk_cutoff = 1.0_dl / (1.0_dl + (k/kd_fde)**2)
+
+!   mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
+!            (x_fde*x_fde)/(1.0_dl + x_fde*x_fde) * &
+!            highk_cutoff
+
+!       dgrho = dgrho * mu_fde
+!    end block
+! ======================================================
+! === FDE Phase D1 : static μ-kernel ==========
     block
         real(dl) :: mu_fde, x_fde
-        
+
         x_fde = k * State%CP%fde_lambda_mem
 
         mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
@@ -2253,6 +2320,32 @@
 
         dgrho = dgrho * mu_fde
     end block
+! ================================================
+
+! === FDE Phase C3.5 : evolving memory length ===
+!   block
+!       real(dl) :: mu_fde, x_fde
+!       real(dl) :: fde_ac, fde_da
+!       real(dl) :: f_tanh_a
+!       real(dl) :: beta_lambda, lambda_eff
+
+!       fde_ac = State%CP%fde_ac
+!       fde_da = State%CP%fde_da
+!       beta_lambda = State%CP%lambda_growth        
+
+!       f_tanh_a = 0.5_dl * &
+!           (1.0_dl + tanh((a - fde_ac) / fde_da))
+
+!       lambda_eff = State%CP%fde_lambda_mem * &
+!           (1.0_dl + beta_lambda * f_tanh_a)
+
+!       x_fde = k * lambda_eff
+
+!       mu_fde = 1.0_dl - State%CP%fde_eps_mu * f_tanh_a * &
+!                (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+
+!       dgrho = dgrho * mu_fde
+!   end block
 ! ================================================
 
 ! === Phase C1: 時間依存λ(z) =============================
@@ -2368,7 +2461,27 @@
 
     clxcdot=-k*z
 
-! === Phase C2 : localized suppression 局所抑制 ===
+! ======================================================
+! === Phase D4 : sign-flip growth ==================
+!   block
+!       real(dl) :: fde_t, lambda_eff, fde_c1
+!       real(dl), parameter :: ks_c1 = 0.05_dl
+!       real(dl), parameter :: p_c1  = 1.5_dl
+
+!       fde_t = 0.5_dl * &
+!           (1.0_dl + tanh((a-State%CP%fde_ac)/State%CP%fde_da))
+
+!       lambda_eff = State%CP%lambda_growth * &
+!                    (1.0_dl - State%CP%fde_da*fde_t)
+
+!       fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / &
+!                (1.0_dl + (k/ks_c1)**p_c1)
+
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+!   end block
+! ==================================================
+
+! === old Phase C1(C2) : localized suppression 局所抑制 ===
 !    block
 !       real(dl) :: lambda_eff, fde_c2
 !       real(dl), parameter :: kc_c2 = 0.02_dl
@@ -2383,17 +2496,142 @@
 !   end block
 ! ================================
 
-!   ! === Phase C1: 時間依存λ(z) ===
+!  ! === Phase C1: canonical  時間依存λ(z) ===
     block
         real(dl) :: lambda_eff, fde_c1
         real(dl), parameter :: ks_c1 = 0.05_dl
         real(dl), parameter :: p_c1  = 1.5_dl
 
+        lambda_eff = State%CP%lambda_growth
         lambda_eff = State%CP%lambda_growth * (a ** State%CP%fde_alpha)
+
         fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / (1.0_dl + (k/ks_c1)**p_c1)
         clxcdot = clxcdot * (1.0_dl + fde_c1)
     end block
-!   ! ================================
+! ============================================================
+
+!  ! === FDE-61 Phase G（temporal pulse test） ===
+!   block
+!       real(dl) :: lambda_eff, fde_c1
+!       real(dl), parameter :: ks_c1 = 0.05_dl
+!       real(dl), parameter :: p_c1  = 1.5_dl
+
+!       lambda_eff = State%CP%lambda_growth * &
+!           ((a-State%CP%fde_ac)/State%CP%fde_da) * &
+!           exp(-0.5_dl*((a-State%CP%fde_ac)/State%CP%fde_da)**2)
+
+!       fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / &
+!                (1.0_dl + (k/ks_c1)**p_c1)
+
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+!   end block
+! ============================================================
+
+! === FDE-61 temporal saturation law (Phase C1: canonical) ===
+!   block
+!       real(dl) :: lambda_eff, fde_c1
+!       real(dl), parameter :: ks_c1 = 0.05_dl
+!       real(dl), parameter :: p_c1  = 1.5_dl
+!       real(dl), parameter :: n_sat = 4.0_dl
+
+!       lambda_eff = State%CP%lambda_growth * &
+!           (a ** State%CP%fde_alpha) / &
+!           (1.0_dl + (a/State%CP%fde_ac)**n_sat)
+
+!       fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / &
+!                (1.0_dl + (k/ks_c1)**p_c1)
+
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+!   end block
+! ============================================================
+
+! === Phase E2 : growth smooth maturation ===
+!   block
+!       real(dl) :: lambda_eff, fde_c1, grow_gate
+!       real(dl), parameter :: ks_c1 = 0.05_dl
+!       real(dl), parameter :: p_c1  = 1.5_dl
+
+!       grow_gate = 1.0_dl - &
+!           State%CP%fde_da * &
+!           (1.0_dl - exp(-a/State%CP%fde_ac))
+
+!       lambda_eff = State%CP%lambda_growth * grow_gate
+
+!       fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / &
+!                (1.0_dl + (k/ks_c1)**p_c1)
+
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+!   end block
+! ================================================================
+
+! ===== FDE-61 proto : dynamic lambda activation =====
+!   block
+!       real(dl) :: lambda_eff, fde_c1, act61
+!       real(dl), parameter :: ks_c1 = 0.05_dl
+!       real(dl), parameter :: p_c1  = 1.5_dl
+
+!       act61 = 0.5_dl * (1.0_dl + tanh((a - State%CP%fde_ac) / State%CP%fde_da))
+
+!       lambda_eff = State%CP%lambda_growth * act61
+
+!       fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / &
+!                (1.0_dl + (k/ks_c1)**p_c1)
+
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+!   end block
+! ====================================================
+
+! ===== FDE-61 Phase A : temporal modulated canonical mu =====
+!   block
+!       real(dl) :: act61, x_fde, mu_fde
+
+!       act61 = 0.5_dl * (1.0_dl + &
+!           tanh((a-State%CP%fde_ac)/State%CP%fde_da))
+       
+!       x_fde = k * State%CP%fde_lambda_mem
+
+!       mu_fde = 1.0_dl - &
+!           State%CP%fde_eps_mu * &
+!           (1.0_dl + State%CP%lambda_growth*act61) * &
+!           (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+
+!       dgrho = dgrho * mu_fde
+!   end block
+! ====================================================
+
+! ===== FDE-61 Phase B : temporal Poisson coupling =====
+!   block
+!       real(dl) :: act61, mu_temporal 
+    
+!       act61 = 0.5_dl * (1.0_dl + &
+!           tanh((a - State%CP%fde_ac) / State%CP%fde_da))
+
+!       x_fde = k * State%CP%fde_lambda_mem
+
+!       mu_temporal = 1.0_dl - &
+!           State%CP%lambda_growth * act61 * &   
+!           (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+
+!       dgrho = dgrho * mu_temporal
+!   end block
+! ======================================================
+
+! ===== FDE-61 Phase C : temporal Poisson rescaled ====
+!   block
+!       real(dl) :: act61, lambda_eff, fde_c1
+!       real(dl), parameter :: ks_c1 = 0.30_dl
+!       real(dl), parameter :: p_c1  = 1.5_dl
+
+!       act61 = 0.5_dl * (1.0_dl + tanh((a - State%CP%fde_ac) / State%CP%fde_da))        
+
+!       lambda_eff = State%CP%lambda_growth * act61
+
+!       fde_c1 = lambda_eff * (k/ks_c1)**p_c1 / &
+!                (1.0_dl + (k/ks_c1)**p_c1)
+
+!       clxcdot = clxcdot * (1.0_dl + fde_c1)
+!   end block
+! =============================================
 
     ayprime(ix_clxc)=clxcdot
 

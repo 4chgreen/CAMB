@@ -17,7 +17,10 @@ params:
   ombh2: 0.02237
   omch2: 0.1200
   tau: 0.0544
-  lambda_growth: -0.06
+  lambda_growth: 0.00
+  fde_alpha:
+    value: 0.0
+    drop: true
   A_planck: 1.0
   calib_100T: 1.0
   calib_217T: 1.0
@@ -43,6 +46,6 @@ params:
 sampler:
   evaluate:
 
-output: fde_compare
+output: fde_phaseC1_compare_LCDM_clean
 packages_path: /Users/4chmacmini2018/cobaya_packages
 
