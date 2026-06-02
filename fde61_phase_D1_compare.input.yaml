@@ -44,10 +44,14 @@ params:
     value: 4.25
   lambda_growth:
     value: 0.01
-  fde_kd: 1000000.0
-  fde_alpha: 0.025
-  fde_ac: 0.9
-  fde_da: 0.05
+  fde_kd:
+    value: 1000000.0
+  fde_alpha:
+    value: 0.025
+  fde_ac:
+    value: 0.9
+  fde_da:
+    value: 0.05
   DES_DzS1:
     value: 0.00258585
   DES_DzS2:

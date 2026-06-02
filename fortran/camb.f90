@@ -426,7 +426,7 @@
     P%fde_kd = Ini%Read_Double('fde_kd', 0.12_dl)
     P%fde_ac = Ini%Read_Double('fde_ac', 0.7_dl)
     P%fde_da = Ini%Read_Double('fde_da', 0.2_dl)
-
+!   P%fde_eta = Ini%Read_Double('fde_eta', 0.0_dl)
 
     if (Ini%Read_Logical('use_physical', .true.)) then
         P%ombh2 = Ini%Read_Double('ombh2')
