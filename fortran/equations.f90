@@ -2310,18 +2310,36 @@
 !    end block
 ! ======================================================
 ! === FDE Phase D1 : static μ-kernel ==========
+!   block
+!       real(dl) :: mu_fde, x_fde
+
+!       x_fde = k * State%CP%fde_lambda_mem
+
+!       mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
+!                (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+
+!       dgrho = dgrho * mu_fde
+!   end block
+! ================================================
+
+! === FDE Phase H1 : curved mu-kernel ==========
     block
-        real(dl) :: mu_fde, x_fde
+        real(dl) :: mu_fde, x_fde, fk
+        real(dl), parameter :: eta_fixed = 0.25_dl
 
         x_fde = k * State%CP%fde_lambda_mem
 
-        mu_fde = 1.0_dl - State%CP%fde_eps_mu * &
-                 (x_fde*x_fde)/(1.0_dl + x_fde*x_fde)
+        fk = (x_fde*x_fde) / &
+             (1.0_dl + x_fde*x_fde)
+
+        mu_fde = 1.0_dl - &
+                 State%CP%fde_eps_mu * &
+                 fk * &
+                 (1.0_dl + eta_fixed * fk)
 
         dgrho = dgrho * mu_fde
     end block
-! ================================================
-
+! =============================================
 ! ======================================================
 ! === FDE Phase H1 : curved mu-kernel ==========
 !   block
