@@ -2325,19 +2325,11 @@
 ! === FDE Phase H1 : curved mu-kernel ==========
     block
         real(dl) :: mu_fde, x_fde, fk
-        real(dl) :: lambda_eff
 
-        real(dl), parameter :: beta_z = 0.0_dl
         real(dl), parameter :: eta_fixed = 0.25_dl
 
-!       x_fde = k * State%CP%fde_lambda_mem
+        x_fde = k * State%CP%fde_lambda_mem
 
-! ============= phase H9 z ==============
-        lambda_eff = State%CP%fde_lambda_mem * &
-                    (1.0_dl + beta_z*(1.0_dl-a))
-
-        x_fde = k * lambda_eff
-! =======================================
         fk = (x_fde*x_fde) / &
              (1.0_dl + x_fde*x_fde)
 
