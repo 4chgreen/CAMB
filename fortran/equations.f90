@@ -2327,10 +2327,16 @@
         real(dl) :: mu_fde, x_fde, fk
         real(dl), parameter :: eta_fixed = 0.25_dl
         real(dl) :: lambda_eff
-        real(dl), parameter :: beta_D = 1.5_dl
+        real(dl), parameter :: beta_D = 1.75_dl
 
-        lambda_eff = State%CP%fde_lambda_mem * &
-                     (1.0_dl - beta_D * a**0.25_dl)
+! === FDE Phase H15 -pre-1 : abs(λeff) =======
+        lambda_eff = abs( &
+                     State%CP%fde_lambda_mem * &
+                     (1.0_dl - beta_D * sqrt(a)))
+! =============================================
+
+!       lambda_eff = State%CP%fde_lambda_mem * &
+!                    (1.0_dl - beta_D * sqrt(a))
 
         x_fde = k * lambda_eff
 
