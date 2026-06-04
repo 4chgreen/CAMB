@@ -2322,7 +2322,8 @@
 !   end block
 ! ================================================
 
-! === FDE Phase H12 : evolving memory length ==========
+! === FDE Phase H13b : structure-history memory ==========
+
     block
         real(dl) :: mu_fde, x_fde, fk
         real(dl), parameter :: eta_fixed = 0.25_dl
@@ -2330,13 +2331,13 @@
         real(dl), parameter :: beta_D = 1.5_dl
 
         lambda_eff = State%CP%fde_lambda_mem * &
-                     (1.0_dl - beta_D * a)
+                     (1.0_dl - beta_D * a*a)
 
         x_fde = k * lambda_eff
 
         fk = (x_fde*x_fde) / &
              (1.0_dl + x_fde*x_fde)
-    
+
         mu_fde = 1.0_dl - &
                  State%CP%fde_eps_mu * &
                  fk * &
@@ -2344,6 +2345,31 @@
 
         dgrho = dgrho * mu_fde
     end block
+
+! =======================================================
+
+! === FDE Phase H12 : evolving memory length ==========
+!   block
+!       real(dl) :: mu_fde, x_fde, fk
+!       real(dl), parameter :: eta_fixed = 0.25_dl
+!       real(dl) :: lambda_eff
+!       real(dl), parameter :: beta_D = 1.5_dl
+
+!       lambda_eff = State%CP%fde_lambda_mem * &
+!                    (1.0_dl - beta_D * a)
+
+!       x_fde = k * lambda_eff
+
+!       fk = (x_fde*x_fde) / &
+!            (1.0_dl + x_fde*x_fde)
+    
+!       mu_fde = 1.0_dl - &
+!                State%CP%fde_eps_mu * &
+!                fk * &
+!                (1.0_dl + eta_fixed * fk)
+
+!       dgrho = dgrho * mu_fde
+!   end block
 ! =============================================
 
 ! === FDE Phase H1 : curved mu-kernel ==========
