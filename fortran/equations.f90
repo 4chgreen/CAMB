@@ -2322,8 +2322,7 @@
 !   end block
 ! ================================================
 
-! === FDE Phase H13b : structure-history memory ==========
-
+! === FDE Phase H14b : memory exponent scan n=0.5 ==========
     block
         real(dl) :: mu_fde, x_fde, fk
         real(dl), parameter :: eta_fixed = 0.25_dl
@@ -2331,7 +2330,7 @@
         real(dl), parameter :: beta_D = 1.5_dl
 
         lambda_eff = State%CP%fde_lambda_mem * &
-                     (1.0_dl - beta_D * a*a)
+                     (1.0_dl - beta_D * a**0.25_dl)
 
         x_fde = k * lambda_eff
 
